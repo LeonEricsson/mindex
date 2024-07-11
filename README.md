@@ -1,2 +1,2 @@
 # mindex
-A local semantic search engine over your mind index.
+a local semantic search engine of your mind index.
