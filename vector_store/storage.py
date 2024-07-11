@@ -29,7 +29,7 @@ class VectorStorage:
         self.query_prefix = query_prefix
         self.index = np.zeros((0, embedder.truncated_dim))
     
-    #TODO: rename?
+    #TODO: rename? 
     def index(self, docs: List[str]):
         """
         Index documents by encoding them with the embedder. Always extends the index.
