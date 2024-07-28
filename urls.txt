@@ -1,8 +1,0 @@
-https://arxiv.org/pdf/2401.01325
-https://arxiv.org/pdf/2310.02207
-https://huggingface.co/blog/moe#:~:text=Mixture%20of%20Experts%20enable%20models,budget%20as%20a%20dense%20model
-https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html
-https://transformer-circuits.pub/2022/toy_model/index.html
-https://cohere.com/blog/int8-binary-embeddings
-https://timdettmers.com/2022/08/17/llm-int8-and-emergent-features/
-https://redwoodresearch.substack.com/p/getting-50-sota-on-arc-agi-with-gpt
