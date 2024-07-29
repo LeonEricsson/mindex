@@ -13,6 +13,36 @@ from vector_store import VectorStorage, SimilarityMetric
 Array = np.ndarray
 
 class Mindex:
+    """A class for indexing and searching document content from various sources.
+
+    Mindex (short for Mind Index) provides functionality to download, parse, 
+    and index content from URLs or local files. It supports both HTML and PDF 
+    documents, breaking them into overlapping chunks for efficient searching.
+
+    The class uses sentence transformers for embedding generation and a vector 
+    storage system for similarity search. It can handle multiple documents, 
+    maintaining information about their sources and dividing them into 
+    searchable chunks.
+
+    Key features include:
+    - Adding documents from URLs or local files
+    - Automatic content type detection and parsing (HTML/PDF)
+    - Text chunking with configurable overlap
+    - Embedding generation using sentence transformers
+    - Efficient similarity search on indexed content
+    - Persistence through saving and loading of index state
+
+    Attributes:
+        NAME (str): Name of the index.
+        CHUNK_SIZE (int): Size of text chunks for indexing.
+        EMBEDDING_DIM (int): Dimensionality of the embedding vectors.
+        model_id (str): Identifier for the sentence transformer model.
+        storage (VectorStorage): Vector storage for embeddings and search.
+        documents (List[Tuple[str, str]]): List of (title, url) pairs for indexed documents.
+        chunks (List[str]): List of all text chunks across all documents.
+        chunk_index (List[int]): Cumulative count of chunks per document.
+    """
+    
     def __init__(self, name: str, model_id: str = "mixedbread-ai/mxbai-embed-large-v1", EMBEDDING_DIM: int = 512, CHUNK_SIZE: int = 200, QUERY_PREFIX = '') -> None:
         self.NAME = name
         self.CHUNK_SIZE = CHUNK_SIZE
@@ -31,13 +61,14 @@ class Mindex:
         self.chunks: List[str] = []
         self.chunk_index: List[int] = [0]
 
-    def add(self, urls: Union[Tuple[str, ...], List[str]] = [], filename: str = None):
+    def add(self, urls: Union[Tuple[str, ...], List[str]] = [], filename: str = None, debug: bool = False):
         """Add document(s) to Mindex.
 
         Args:
             urls (Union[Tuple[str, ...], List[str]]): List of URLs to add.
             filename (str, optional): Path to a file containing URLs to add.
-
+            debug (bool, optional): If True, prints debug information related to
+                the download and parsing process. Defaults to False.
         
         """
         assert isinstance(urls, (tuple, list))
@@ -58,6 +89,8 @@ class Mindex:
             chunks, n_chunks = self._chunk(text)
             new_chunks.extend(chunks)
             self.chunk_index.append(self.chunk_index[-1] + n_chunks)
+            if debug:
+                print(f"Added {title} from {url} with {n_chunks} chunks.")
 
         assert new_chunks != []
         
@@ -66,6 +99,7 @@ class Mindex:
 
         self.save(f"{self.NAME}.pkl")
 
+    """TODO: remove() method. Will need to update chunk_index and storage."""
     
     def save(self, filename: str):
         with open(filename, 'wb') as f:

@@ -3,6 +3,18 @@ from typing import List, Dict, Any
 from nltk import ngrams
 
 class Evaluator:
+    """A helper class to evaluate Mindex search quality.
+
+    This class provides methods to load, access, and evaluate data from JSON files
+    containing validation and test sets for retrieval tasks. It includes
+    functionality for retrieving queries, answers, and document URLs, as well as
+    evaluating the quality of retrieved chunks against true answers.
+
+    Attributes:
+        dataset_name (str): The name of the dataset.
+        validation_set (List[Dict]): The validation dataset.
+        test_set (List[Dict]): The test dataset.
+    """
     def __init__(self, file_path: str):
         with open(file_path, 'r') as f:
             data = json.load(f)
@@ -37,6 +49,10 @@ class Evaluator:
         item = next((item for item in target_set if item['query'] == query), None)
         return item['answer'] if item else None
 
+    def get_document_urls(self) -> List[str]:
+        validation_urls =  set([item['document_url'] for item in self.validation_set])
+        test_urls = set([item['document_url'] for item in self.test_set])
+        return list(validation_urls.union(test_urls))
 
     @staticmethod
     def calculate_ngram_overlap_score(retrieved_chunk: str, true_answer: str, n: int = 5) -> float:
