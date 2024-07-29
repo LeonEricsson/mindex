@@ -25,7 +25,7 @@ class Evaluator:
 
 
     def get_validation_set(self) -> List[str]:
-        return [(item['query'], item['answer']['text']) for item in self.validation_set]
+        return [(item['query'], item['answer']) for item in self.validation_set]
 
 
     def get_validation_queries(self) -> List[str]:

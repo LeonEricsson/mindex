@@ -2,6 +2,7 @@ import os
 import pickle
 import requests
 import tempfile
+from requests.exceptions import HTTPError
 from typing import Union, Tuple, List
 
 import numpy as np
@@ -42,7 +43,7 @@ class Mindex:
         chunks (List[str]): List of all text chunks across all documents.
         chunk_index (List[int]): Cumulative count of chunks per document.
     """
-    
+
     def __init__(self, name: str, model_id: str = "mixedbread-ai/mxbai-embed-large-v1", EMBEDDING_DIM: int = 512, CHUNK_SIZE: int = 200, QUERY_PREFIX = '') -> None:
         self.NAME = name
         self.CHUNK_SIZE = CHUNK_SIZE
@@ -83,8 +84,13 @@ class Mindex:
             if url in [doc[1] for doc in self.documents]:
                 print(f"Skipped {url} as it already exists in the index.")
                 continue
-
-            title, text = self._download(url)
+            
+            try:
+                title, text = self._download(url)
+            except HTTPError as e:
+                print(f"Error downloading {url}: {e}")
+                continue
+            
             self.documents.append((title, url))
             chunks, n_chunks = self._chunk(text)
             new_chunks.extend(chunks)
