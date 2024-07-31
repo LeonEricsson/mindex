@@ -1,0 +1,104 @@
+You are going to create a synthetic benchmark dataset consisting of queries and answers, from research documents (papers, blog posts, etc). When generating this dataset, imagine you are a researcher, and you are querying your own personal Mindex. You are typically looking for something you've read before (specificity), or you want the answer to a more general question which you presume is in your Mindex. 
+
+<Requirements>  
+
+1. Only 30% of generated queries are permitted to directly mention the method, strategy, dataset that is presented as the main contribution. For example, when generating queries for the AlphaZero paper, max 30% of the queries are allowed to include the word "AlphaZero" in the query. This requirement aims to increase the difficulty of the benchmark dataset.
+
+2. When generating queries, imagine a user interacting with a large knowledge base containing hundreds of research documents. Your task is to create queries and answers based on a single provided document, but frame these queries as if they're being posed to the entire knowledge base. This means:
+
+    a. Avoid references to 'this document', 'this paper', or 'the author(s)' in your queries.
+    b. Formulate questions that could plausibly be answered by multiple documents, even though we know the answer comes from our specific document.
+    c. Focus on the content and concepts rather than the document itself.
+
+3. Generate a mix of factual, conceptual, and analytical queries. Aim for approximately 40% factual, 40% conceptual, and 20% analytical questions.
+
+4. Extracted answers should typically be 1-5 sentences long, capturing the core information that addresses the query.
+
+5. Include a mix of 'what', 'why', 'how', 'compare/contrast', and 'explain' questions to cover different cognitive levels.
+
+6. Queries must pair with a DISTINCT passage in the text! Your query should stem from a specific chunk in the provided document. The less amount of different passages that answer the query the better.
+
+7. Ensure that your queries cover different sections of the document and don't cluster around a single topic or area.
+
+8. Avoid answer passages that contain a lot of mathematical notations.
+</Requirements>   
+
+<Output>  
+
+Pair the query with the chunk of text that answers the query. Paste the EXACT chunk from the document that answers the query. Output json, using this template:
+
+{
+    "id": "q001",
+    "query": "",
+    "answer": "",
+    "document_url": ""
+},
+{
+    "id": "q002",
+    "query": "",
+    "answer": "",
+    "document_url": ""
+},
+
+</Output> 
+
+<Examples>
+{
+    "id": "q020",
+    "query": "Why is perplexity (PPL) not an effective metric for measuring LLMs' ability to handle long contexts?",
+    "answer": {
+    "text": "The discrepancy between Perplexity (PPL) and long context ability primarily stems from how PPL is calculated by averaging over numerous tokens. As long as the majority of tokens are modeled accurately, PPL will remain low. This is closely related to the influence of neighboring tokens. Information from neighboring tokens—such as those within the local attention window of 'Infinite'—can suffice for predicting most tokens, thus leading to a low PPL. However, a few critical tokens, which are crucial for understanding long contexts and answering questions, may not be predicted accurately.",
+    "document_url": "https://arxiv.org/pdf/2401.01325"
+},
+{
+    "id": "q214",
+    "query": "How does the choice of learning rate schedule affect the final performance of language models?",
+    "answer": "We conclude that the choice of learning rate schedule is mostly irrelevant, as long as the total summed learning rate is sufficiently large, and the schedule includes a warmup period and a final decay to near-vanishing learning rate. Variations among schedules appear to be statistical noise, and provide a rough gauge for the scale of variation between different training runs.",
+    "document_url": "https://arxiv.org/pdf/2001.08361"
+},
+{
+    "id": "q122",
+    "query": "What is the fundamental action of attention heads in transformer models?",
+    "answer": "The fundamental action of attention heads is moving information. They read information from the residual stream of one token, and write it to the residual stream of another token.",
+    "document_url": "https://transformer-circuits.pub/2021/framework/index.html"
+},
+{
+    "id": "q072",
+    "query": "What are the benefits of caching in LLM applications?",
+    "answer": "Caching saves cost and eliminates generation latency by removing the need to recompute responses for the same input. Furthermore, if a response has previously been guardrailed, we can serve these vetted responses and reduce the risk of serving harmful or inappropriate content.",
+    "document_url": "https://applied-llms.org/"
+},
+{
+    "id": "q011",
+    "query": "Why might fine-tuning large language models on long texts be problematic?",
+    "answer": "Additionally, high-quality long text data is scarce, hindering such fine-tuning approaches. Most real-world data is short, and much long text lacks meaningful long-range dependencies. With limited appropriate data, finetuning risks degrading existing strong performance on shorter sequences from pretraining or overfitting models to the tuning set. LLMs' generalizability to broad tasks may be reduced.",
+    "document_url": "https://arxiv.org/pdf/2401.01325"
+},
+{
+    "id": "q244",
+    "query": "What is the significance of scaling laws in language model training?",
+    "answer": "Scaling Laws The difficulty in finding tangible improvements is echoed in the scaling laws of Kaplan et al. (2020). Over a wide range of transformer model shapes, Kaplan et al. (2020) find only model size (as number of parameters in non-embedding layers) strongly predicts performance. Further, for a fixed compute budget, an optimal model size can be derived, but performance is only mildly connected to model size - larger models processes less data per unit of compute, but improve faster by almost the same margin.",
+    "document_url": "https://arxiv.org/pdf/2212.14034"
+},
+{
+    "id": "q260",
+    "query": "How does model size affect the efficiency of language model training?",
+    "answer": "Models with more parameters learn more efficiently, as their MLM loss decreases faster on a per-gradient basis. However, smaller architectures make up for their slower learning efficiency by higher throughput, and thus process more tokens over the limited budget.",
+    "document_url": "https://arxiv.org/pdf/2212.14034"
+},
+</Examples>
+
+<FinalInstructions>
+- Note how none of the examples directly reference a method, or paper. They are general, as if the answer could exist in anywhere in the knowledge base. 
+
+- The document to generate (query, answer) pairs from is attached. I remind you once more that answers **must** be extracted word-for-word from the attached document.
+
+- Use the provided document URL for all entries in the 'document_url' field: "https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html". 
+
+- Generate 20 samples (don't use artifacts). Starting from id "q399".
+
+- Adhere to ALL requirements. Let me repeat the most important requirements:
+    1. References to "this" document, or similar. There is no notion of "this" in a large knowledge base. Your task is to create queries and answers based on a single provided document, but frame these queries as if they're being posed to the entire knowledge base. Avoid formulations such as "How do researchers ..."
+    2. Only 30% of generated queries are permitted to directly mention the method, strategy, dataset that is presented as the main contribution. For example, when generating queries for the AlphaZero paper, max 30% of the queries are allowed to include the word "AlphaZero" in the query. This requirement aims to increase the difficulty of the benchmark dataset.
+
+</FinalInstructions>
