@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mindex"
+version = "0.1.0"
+description = "A local semantic search engine over your mind index."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT License" }
+authors = [
+    { name = "Leon", email = "leon.ericsson@icloud.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+homepage = "https://github.com/LeonEricsson/mindex"
+
+[project.optional-dependencies]
+test = [
+    "pytest"
+]
+
+[project.dependencies]
+numpy = "==1.26.4"
+torch = "==2.3.0"
+sentence-transformers = "==3.0.0"
+
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = ["tests", "examples"]
