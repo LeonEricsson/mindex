@@ -1,6 +1,6 @@
 import numpy as np
 from enum import Enum
-from typing import List
+from typing import List, Tuple
 
 class SimilarityMetric(Enum):
     COSINE = 0
@@ -51,6 +51,13 @@ class VectorStorage:
         new_embeddings = self._embedder.encode(docs)
         self._index = np.concatenate([self._index, new_embeddings])
 
+    def remove(self, a: int, b: int = None):
+        """
+        Remove entries between indices [a, b). If b is None, remove element at index a.
+        """
+        assert 0 <= a < self._index.shape[0]
+        i = slice(a, b) if b else a
+        self._index = np.delete(self._index, i, axis=0)
 
     def search_top_k(self, queries: List[str], k: int = 10):
         """Batched search for top k similar entries in index."""

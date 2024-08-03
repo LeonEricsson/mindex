@@ -61,6 +61,7 @@ class Mindex:
         self.documents: List[Tuple[str, str]] = []
         self.chunks: List[str] = []
         self.chunk_index: List[int] = [0]
+        self.chunk_index: Array = np.zeros(1, dtype=np.int16)
 
     def add(self, urls: Union[Tuple[str, ...], List[str]] = [], filename: str = None, debug: bool = False):
         """Add document(s) to Mindex.
@@ -80,6 +81,8 @@ class Mindex:
                 urls.extend([line.strip() for line in f.readlines()])
 
         new_chunks = []
+        new_chunk_idxs = []
+        prev_chunk_index = self.chunk_index[-1]
         for url in urls:
             if url in [doc[1] for doc in self.documents]:
                 print(f"Skipped {url} as it already exists in the index.")
@@ -94,18 +97,40 @@ class Mindex:
             self.documents.append((title, url))
             chunks, n_chunks = self._chunk(text)
             new_chunks.extend(chunks)
-            self.chunk_index.append(self.chunk_index[-1] + n_chunks)
+            new_chunk_idxs.append(prev_chunk_index + n_chunks)
+            prev_chunk_index = new_chunk_idxs[-1]
             if debug:
                 print(f"Added {title} from {url} with {n_chunks} chunks.")
 
-        assert new_chunks != []
-        
+        if not new_chunks:
+            return
+
+        self.chunk_index = np.concatenate([self.chunk_index, new_chunk_idxs])
         self.storage.index(new_chunks)
         self.chunks.extend(new_chunks)
 
         self.save(f"{self.NAME}.pkl")
 
-    """TODO: remove() method. Will need to update chunk_index and storage."""
+
+    def remove(self, url: str):
+        """Remove a document from the index by URL."""
+        index = next((i for i, doc in enumerate(self.documents) if doc[1] == url), None)
+        if index is not None:
+            self.documents.pop(index)
+            
+            c_s = self.chunk_index[index]
+            c_e = self.chunk_index[index + 1]
+            self.chunks = self.chunks[:c_s] + self.chunks[c_e:]
+
+            self.chunk_index = np.delete(self.chunk_index, index + 1)
+            self.chunk_index[index + 1:] -= c_e - c_s
+
+            self.storage.remove(c_s, c_e)
+
+            self.save(f"{self.NAME}.pkl")
+        else:
+            print(f"Document with URL {url} not found in the index.")
+    
     
     def save(self, filename: str):
         with open(filename, 'wb') as f:

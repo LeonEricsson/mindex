@@ -28,6 +28,10 @@ class Evaluator:
         return [(item['query'], item['answer']) for item in self.validation_set]
 
 
+    def get_test_set(self) -> List[Tuple[str, str]]:
+        return [(item['query'], item['answer']) for item in self.test_set]
+
+
     def get_validation_queries(self) -> List[str]:
         return [item['query'] for item in self.validation_set]
 
