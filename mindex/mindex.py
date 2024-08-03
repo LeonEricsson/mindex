@@ -9,7 +9,7 @@ import numpy as np
 import fitz  # PyMuPDF
 from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
-from vector_store import VectorStorage, SimilarityMetric
+from .vector_store import VectorStorage, SimilarityMetric
 
 Array = np.ndarray
 

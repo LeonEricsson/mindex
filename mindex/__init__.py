@@ -1,5 +1,5 @@
-from .mindex import YourMainClass, your_main_function
+from .mindex import Mindex
 
-__all__ = ['YourMainClass', 'your_main_function']
+__all__ = ['Mindex']
 
 __version__ = '0.1.0'
