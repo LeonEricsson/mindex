@@ -1,5 +1,5 @@
 import json
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 from nltk import ngrams
 
 class Evaluator:
@@ -24,7 +24,7 @@ class Evaluator:
         self.test_set = data.get('test', [])
 
 
-    def get_validation_set(self) -> List[str]:
+    def get_validation_set(self) -> List[Tuple[str, str]]:
         return [(item['query'], item['answer']) for item in self.validation_set]
 
 
@@ -55,7 +55,7 @@ class Evaluator:
         return list(validation_urls.union(test_urls))
 
     @staticmethod
-    def calculate_ngram_overlap_score(retrieved_chunk: str, true_answer: str, n: int = 5) -> float:
+    def calculate_ngram_overlap_score(retrieved_chunk: str, true_answer: str, n: int = 3) -> float:
         def get_ngrams(t: str, n: int):
             return set(ngrams(t.lower().split(), n))
 
