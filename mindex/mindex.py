@@ -151,7 +151,7 @@ class Mindex:
                 )
             return obj
 
-    def search(self, query: str, top_k: int) -> Tuple[Array, Array, Array]:
+    def search(self, query: str, top_k: int) -> Tuple[Array, Array, Array, Array]:
         """
         Search the embedding database for the most relevant documents to the query.
 
@@ -160,7 +160,7 @@ class Mindex:
             top_k (int): The number of top results to return.
 
         Returns:
-            Tuple[np.ndarray, np.ndarray, np.ndarray]: Top documents, doc scores, top chunks, chunk scores.
+            Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Top documents, doc scores, top chunks, chunk scores.
         """
         assert top_k > 0 and top_k <= len(self.chunks)
         
@@ -187,12 +187,39 @@ class Mindex:
         return sorted_documents, sorted_scores
     
 
-    def _chunk(self, text: str) -> Tuple[List[str], int]:
+    def _chunk2(self, text: str) -> Tuple[List[str], int]:
         """Split documents into 50% overlapping segments."""
         words = text.split()
         chunks = [' '.join(words[i:i+self.CHUNK_SIZE]) for i in range(0, len(words), self.CHUNK_SIZE // 2)]
         return chunks, len(chunks)
 
+    def _chunk(self, text: str) -> Tuple[List[str], int]:
+        """Split documents into chunks based on '.\n' sequence or CHUNK_SIZE words."""
+        chunks = []
+        current_chunk = []
+        word_count = 0
+        current_word = ""
+
+        for char in text:
+            if char.isspace():
+                if current_word:
+                    current_chunk.append(current_word)
+                    word_count += 1
+                    current_word = ""
+
+                if word_count >= self.CHUNK_SIZE or (current_chunk and current_chunk[-1].endswith('.') and char == '\n'):
+                    chunks.append(' '.join(current_chunk).replace('\n', ' ').strip())
+                    current_chunk = []
+                    word_count = 0
+            else:
+                current_word += char
+
+        if current_word:
+            current_chunk.append(current_word)
+        if current_chunk:
+            chunks.append(' '.join(current_chunk).replace('\n', ' ').strip())
+
+        return chunks, len(chunks)
     
     def _download(self, url: str) -> Tuple[str, str]:
         """Download content from the given URL, determine its type, and extract the title and text."""
@@ -208,12 +235,14 @@ class Mindex:
         else:
             raise Exception('Unsupported content type')
 
+
     def _parse_html(self, content: bytes) -> Tuple[str, str]:
         """Extract the title and text content from HTML data."""
         soup = BeautifulSoup(content, 'html.parser')
-        title = soup.find('title').text if soup.find('title') else 'No Title'
+        title = soup.find('title').text if soup.find('title') else ''
         text = self._clean_text(soup.get_text())
         return title, text
+
 
     def _parse_pdf(self, content: bytes) -> Tuple[str, str]:
         """Extract the title and text content from a PDF file."""
@@ -223,6 +252,7 @@ class Mindex:
 
         doc = fitz.open(temp_file_path)
         text = ' '.join([page.get_text() for page in doc])
+
         text = self._clean_text(text)
 
         # Extract title from metadata or the first block of text
@@ -231,10 +261,10 @@ class Mindex:
         os.remove(temp_file_path)
         return title, text
 
+
     def _clean_text(self, text: str) -> str:
-        text = text.replace('\n', ' ')
-        text = text.replace('- ', '')
-        return ' '.join(text.split())
+        text = text.replace('-\n', '')
+        return text 
 
 
     def _extract_first_block_text(self, page) -> str:
