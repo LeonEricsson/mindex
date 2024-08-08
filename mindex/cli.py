@@ -4,8 +4,6 @@ from typing import Optional
 from appdirs import user_data_dir
 from .mindex import Mindex
 
-import time
-
 MINDEX_DIR = user_data_dir("Mindex", "dev")
 os.makedirs(MINDEX_DIR, exist_ok=True)
 
@@ -17,16 +15,10 @@ def get_mindex_path(name: str) -> str:
 def get_mindex(name: str) -> Mindex:
     filename = get_mindex_path(name)
     if os.path.exists(filename):
-        click.echo(f"Loading existing Mindex instance '{name}'...")
-        load_start = time.time()
         mindex = Mindex.load(filename)
-        click.echo(f"Mindex loaded in {time.time() - load_start:.2f} seconds")
     else:
         click.echo(f"Creating new Mindex instance '{name}'...")
-        create_start = time.time()
         mindex = Mindex(name)
-        mindex.save(filename)
-        click.echo(f"New Mindex instance created and saved in {time.time() - create_start:.2f} seconds")
     return mindex
 
 
@@ -42,22 +34,13 @@ def cli():
 @click.option('--top-k', default=5, help='Number of top results to return.')
 def search(query: str, name: str, top_k: int):
     """Perform a search query."""
-    start_time = time.time()
     mindex = get_mindex(name)
-    get_mindex_time = time.time() - start_time
-    
-    search_start = time.time()
     results = mindex.search(query, top_k)
-    search_time = time.time() - search_start
     
     for doc_id, score in zip(results[0], results[1]):
         document = mindex.documents[doc_id]
         click.echo(f"Score: {score:.4f}, Title: {document[0]}, URL: {document[1]}")
     
-    click.echo(f"Time to get Mindex: {get_mindex_time:.2f} seconds")
-    click.echo(f"Time to perform search: {search_time:.2f} seconds")
-    click.echo(f"Total command time: {time.time() - start_time:.2f} seconds")
-
 
 @cli.command()
 @click.argument('url')
