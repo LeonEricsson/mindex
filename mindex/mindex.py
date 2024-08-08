@@ -54,7 +54,7 @@ class Mindex:
             embedder=SentenceTransformer(model_id, truncate_dim=EMBEDDING_DIM),
             similarity=SimilarityMetric.COSINE,
             query_prefix=QUERY_PREFIX,
-            save_embedder=False
+            save_embedder=True
         )
 
 
@@ -140,16 +140,9 @@ class Mindex:
     @classmethod
     def load(cls, filename: str):
         with open(filename, 'rb') as f:
-            obj = pickle.load(f)
-            
-            # reload embedding model
-            obj.storage.set_embedder(
-                SentenceTransformer(
-                    obj.model_id, 
-                    truncate_dim=obj.EMBEDDING_DIM
-                    )
-                )
-            return obj
+            mindex = pickle.load(f)
+        return mindex
+        
 
     def search(self, query: str, top_k: int) -> Tuple[Array, Array, Array, Array]:
         """
@@ -169,10 +162,10 @@ class Mindex:
         chunk_scores = chunk_scores.squeeze()
 
         # connect chunks to documents
-        top_k_documents = np.searchsorted(self.chunk_index, top_k_chunks, side='right') 
+        top_k_documents = np.searchsorted(self.chunk_index, top_k_chunks, side='right') - 1
         top_m_documents, document_scores = self._aggregate_and_sort(top_k_documents, chunk_scores) # m <= k
 
-        return top_m_documents.squeeze(), document_scores.squeeze(), top_k_chunks, chunk_scores
+        return top_m_documents, document_scores, top_k_chunks, chunk_scores
 
 
     def _aggregate_and_sort(self, documents: Array, scores: Array) -> Tuple[Array, Array]:

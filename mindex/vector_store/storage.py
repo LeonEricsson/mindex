@@ -1,6 +1,6 @@
 import numpy as np
 from enum import Enum
-from typing import List, Tuple
+from typing import List
 
 class SimilarityMetric(Enum):
     COSINE = 0
@@ -73,6 +73,14 @@ class VectorStorage:
 
         row_indices = np.arange(similarities.shape[0])[:, np.newaxis]
         return top_k_indices, similarities[row_indices, top_k_indices]
+
+
+    def get_embedder(self):
+        return self._embedder
+
+    def set_embedder(self, embedder):
+        """Method to set the embedder after unpickling if it wasn't saved."""
+        self._embedder = embedder
     
 
     def __getstate__(self):
@@ -89,8 +97,3 @@ class VectorStorage:
         if '_save_embedder' not in state or not state['_save_embedder']:
             self._embedder = None
 
-
-    def set_embedder(self, embedder):
-        """Method to set the embedder after unpickling if it wasn't saved."""
-        self._embedder = embedder
-    
