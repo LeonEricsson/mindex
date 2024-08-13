@@ -180,13 +180,13 @@ class Mindex:
         return sorted_documents, sorted_scores
     
 
-    def _chunk2(self, text: str) -> Tuple[List[str], int]:
+    def _chunk(self, text: str) -> Tuple[List[str], int]:
         """Split documents into 50% overlapping segments."""
         words = text.split()
         chunks = [' '.join(words[i:i+self.CHUNK_SIZE]) for i in range(0, len(words), self.CHUNK_SIZE // 2)]
         return chunks, len(chunks)
 
-    def _chunk(self, text: str) -> Tuple[List[str], int]:
+    def _chunk2(self, text: str) -> Tuple[List[str], int]:
         """Split documents into chunks based on '.\n' sequence or CHUNK_SIZE words."""
         chunks = []
         current_chunk = []

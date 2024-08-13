@@ -82,3 +82,44 @@ class Evaluator:
             'best_chunk_index': best_chunk_index,
             'is_answer_found': is_answer_found
         }
+    
+    def evaluate_mindex(self, mindex, validation_set = True, log=False):
+        import time
+        from tqdm import tqdm
+
+        num_samples = 0
+        num_correct = 0
+        sum_overlap = 0.0
+        search_times = []
+        eval_times = []
+
+        dataset = self.get_validation_set() if validation_set else self.get_test_set() 
+
+        for query, answer in tqdm(dataset, desc="Processing"):
+            search_start = time.time()
+            _, _, chunk_idxs, _ = mindex.search(query, top_k=5)
+            search_end = time.time()
+            search_times.append(search_end - search_start)
+
+            chunks = [mindex.chunks[i] for i in chunk_idxs]
+
+            eval_start = time.time()
+            result = self.evaluate_retrieval(answer, chunks)
+            eval_end = time.time()
+            eval_times.append(eval_end - eval_start)
+
+            num_samples += 1
+            num_correct += int(result['is_answer_found'])
+            sum_overlap += result['max_score']
+
+            if log:
+                print(f"Query: {query}")
+                print(f"Answer: {answer}")
+                print(result['is_answer_found'], result['max_score'], chunks[result['best_chunk_index']])
+                print("------")
+                print("")
+
+        print(f"Accuracy: {num_correct / num_samples:.4f}")
+        print(f"Mean n-gram overlap: {sum_overlap / num_samples:.4f}")
+        print(f"Mean search time: {sum(search_times) / len(search_times):.4f} seconds")
+        print(f"Mean evaluation time: {sum(eval_times) / len(eval_times):.4f} seconds")
