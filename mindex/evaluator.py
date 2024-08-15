@@ -83,7 +83,7 @@ class Evaluator:
             'is_answer_found': is_answer_found
         }
     
-    def evaluate_mindex(self, mindex, validation_set = True, log=False):
+    def evaluate_mindex(self, mindex, validation_set = True, debug=False):
         import time
         from tqdm import tqdm
 
@@ -112,14 +112,17 @@ class Evaluator:
             num_correct += int(result['is_answer_found'])
             sum_overlap += result['max_score']
 
-            if log:
+            if debug:
                 print(f"Query: {query}")
                 print(f"Answer: {answer}")
                 print(result['is_answer_found'], result['max_score'], chunks[result['best_chunk_index']])
                 print("------")
                 print("")
 
-        print(f"Accuracy: {num_correct / num_samples:.4f}")
-        print(f"Mean n-gram overlap: {sum_overlap / num_samples:.4f}")
+        accuracy = num_correct / num_samples
+        mean_overlap = sum_overlap / num_samples
+        print(f"Accuracy: {accuracy:.4f}")
+        print(f"Mean n-gram overlap: {mean_overlap:.4f}")
         print(f"Mean search time: {sum(search_times) / len(search_times):.4f} seconds")
         print(f"Mean evaluation time: {sum(eval_times) / len(eval_times):.4f} seconds")
+        return accuracy, mean_overlap
