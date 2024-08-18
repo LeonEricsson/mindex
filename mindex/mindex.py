@@ -13,16 +13,17 @@ from .vector_store import VectorStorage, SimilarityMetric
 
 Array = np.ndarray
 
+
 class Mindex:
     """A class for indexing and searching document content from various sources.
 
-    Mindex (short for Mind Index) provides functionality to download, parse, 
-    and index content from URLs or local files. It supports both HTML and PDF 
+    Mindex (short for Mind Index) provides functionality to download, parse,
+    and index content from URLs or local files. It supports both HTML and PDF
     documents, breaking them into overlapping chunks for efficient searching.
 
-    The class uses sentence transformers for embedding generation and a vector 
-    storage system for similarity search. It can handle multiple documents, 
-    maintaining information about their sources and dividing them into 
+    The class uses sentence transformers for embedding generation and a vector
+    storage system for similarity search. It can handle multiple documents,
+    maintaining information about their sources and dividing them into
     searchable chunks.
 
     Key features include:
@@ -44,9 +45,18 @@ class Mindex:
         chunk_index (List[int]): Cumulative count of chunks per document.
     """
 
-    def __init__(self, name: str, model_id: str = "mixedbread-ai/mxbai-embed-large-v1", EMBEDDING_DIM: int = 512, CHUNK_SIZE: int = 200, QUERY_PREFIX = '') -> None:
+    def __init__(
+        self,
+        name: str,
+        model_id: str = "mixedbread-ai/mxbai-embed-large-v1",
+        EMBEDDING_DIM: int = 512,
+        CHUNK_SIZE: int = 200,
+        CHUNK_OVERLAP: int = 100,
+        QUERY_PREFIX = "",
+    ) -> None:
         self.NAME = name
         self.CHUNK_SIZE = CHUNK_SIZE
+        self.CHUNK_OVERLAP = CHUNK_OVERLAP
         self.EMBEDDING_DIM = EMBEDDING_DIM
         self.model_id = model_id
 
@@ -54,16 +64,20 @@ class Mindex:
             embedder=SentenceTransformer(model_id, truncate_dim=EMBEDDING_DIM),
             similarity=SimilarityMetric.COSINE,
             query_prefix=QUERY_PREFIX,
-            save_embedder=True
+            save_embedder=True,
         )
-
 
         self.documents: List[Tuple[str, str]] = []
         self.chunks: List[str] = []
         self.chunk_index: List[int] = [0]
         self.chunk_index: Array = np.zeros(1, dtype=np.int16)
 
-    def add(self, urls: Union[Tuple[str, ...], List[str]] = [], filename: str = None, debug: bool = False):
+    def add(
+        self,
+        urls: Union[Tuple[str, ...], List[str]] = [],
+        filename: str = None,
+        debug: bool = False,
+    ):
         """Add document(s) to Mindex.
 
         Args:
@@ -71,13 +85,13 @@ class Mindex:
             filename (str, optional): Path to a file containing URLs to add.
             debug (bool, optional): If True, prints debug information related to
                 the download and parsing process. Defaults to False.
-        
+
         """
         assert isinstance(urls, (tuple, list))
         assert urls != [] or filename is not None
-        
+
         if filename:
-            with open(filename, 'r') as f:
+            with open(filename, "r") as f:
                 urls.extend([line.strip() for line in f.readlines()])
 
         new_chunks = []
@@ -87,13 +101,13 @@ class Mindex:
             if url in [doc[1] for doc in self.documents]:
                 print(f"Skipped {url} as it already exists in the index.")
                 continue
-            
+
             try:
                 title, text = self._download(url)
             except HTTPError as e:
                 print(f"Error downloading {url}: {e}")
                 continue
-            
+
             self.documents.append((title, url))
             chunks, n_chunks = self._chunk(text)
             new_chunks.extend(chunks)
@@ -111,38 +125,34 @@ class Mindex:
 
         self.save(f"{self.NAME}.pkl")
 
-
     def remove(self, url: str):
         """Remove a document from the index by URL."""
         index = next((i for i, doc in enumerate(self.documents) if doc[1] == url), None)
         if index is not None:
             self.documents.pop(index)
-            
+
             c_s = self.chunk_index[index]
             c_e = self.chunk_index[index + 1]
             self.chunks = self.chunks[:c_s] + self.chunks[c_e:]
 
             self.chunk_index = np.delete(self.chunk_index, index + 1)
-            self.chunk_index[index + 1:] -= c_e - c_s
+            self.chunk_index[index + 1 :] -= c_e - c_s
 
             self.storage.remove(c_s, c_e)
 
             self.save(f"{self.NAME}.pkl")
         else:
             print(f"Document with URL {url} not found in the index.")
-    
-    
-    def save(self, filename: str):
-        with open(filename, 'wb') as f:
-            pickle.dump(self, f)
 
+    def save(self, filename: str):
+        with open(filename, "wb") as f:
+            pickle.dump(self, f)
 
     @classmethod
     def load(cls, filename: str):
-        with open(filename, 'rb') as f:
+        with open(filename, "rb") as f:
             mindex = pickle.load(f)
         return mindex
-        
 
     def search(self, query: str, top_k: int) -> Tuple[Array, Array, Array, Array]:
         """
@@ -156,37 +166,44 @@ class Mindex:
             Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Top documents, doc scores, top chunks, chunk scores.
         """
         assert top_k > 0 and top_k <= len(self.chunks)
-        
+
         top_k_chunks, chunk_scores = self.storage.search_top_k([query], top_k)
         top_k_chunks = top_k_chunks.squeeze()
         chunk_scores = chunk_scores.squeeze()
 
         # connect chunks to documents
-        top_k_documents = np.searchsorted(self.chunk_index, top_k_chunks, side='right') - 1
-        top_m_documents, document_scores = self._aggregate_and_sort(top_k_documents, chunk_scores) # m <= k
+        top_k_documents = (
+            np.searchsorted(self.chunk_index, top_k_chunks, side="right") - 1
+        )
+        top_m_documents, document_scores = self._aggregate_and_sort(
+            top_k_documents, chunk_scores
+        )  # m <= k
 
         return top_m_documents, document_scores, top_k_chunks, chunk_scores
 
+    def _aggregate_and_sort(
+        self, documents: Array, scores: Array
+    ) -> Tuple[Array, Array]:
+        """Aggregate chunk similarity scores by source document and sort the documents by new scores."""
 
-    def _aggregate_and_sort(self, documents: Array, scores: Array) -> Tuple[Array, Array]:
-        """ Aggregate chunk similarity scores by source document and sort the documents by new scores."""
-
-        unique_docs, inverse_indices = np.unique(documents, return_inverse=True)    
+        unique_docs, inverse_indices = np.unique(documents, return_inverse=True)
         aggregated_scores = np.bincount(inverse_indices, weights=scores)
         sorted_indices = np.argsort(-aggregated_scores)
-        
+
         sorted_documents = unique_docs[sorted_indices]
         sorted_scores = aggregated_scores[sorted_indices]
         return sorted_documents, sorted_scores
-    
-
-    def _chunk2(self, text: str) -> Tuple[List[str], int]:
-        """Split documents into 50% overlapping segments."""
-        words = text.split()
-        chunks = [' '.join(words[i:i+self.CHUNK_SIZE]) for i in range(0, len(words), self.CHUNK_SIZE // 2)]
-        return chunks, len(chunks)
 
     def _chunk(self, text: str) -> Tuple[List[str], int]:
+        """Split documents into 50% overlapping segments."""
+        words = text.split()
+        chunks = [
+            " ".join(words[i : i + self.CHUNK_SIZE])
+            for i in range(0, len(words), self.CHUNK_OVERLAP)
+        ]
+        return chunks, len(chunks)
+
+    def _chunk2(self, text: str) -> Tuple[List[str], int]:
         """Split documents into chunks based on '.\n' sequence or CHUNK_SIZE words."""
         chunks = []
         current_chunk = []
@@ -200,8 +217,10 @@ class Mindex:
                     word_count += 1
                     current_word = ""
 
-                if word_count >= self.CHUNK_SIZE or (current_chunk and current_chunk[-1].endswith('.') and char == '\n'):
-                    chunks.append(' '.join(current_chunk).replace('\n', ' ').strip())
+                if word_count >= self.CHUNK_SIZE or (
+                    current_chunk and current_chunk[-1].endswith(".") and char == "\n"
+                ):
+                    chunks.append(" ".join(current_chunk).replace("\n", " ").strip())
                     current_chunk = []
                     word_count = 0
             else:
@@ -210,57 +229,52 @@ class Mindex:
         if current_word:
             current_chunk.append(current_word)
         if current_chunk:
-            chunks.append(' '.join(current_chunk).replace('\n', ' ').strip())
+            chunks.append(" ".join(current_chunk).replace("\n", " ").strip())
 
         return chunks, len(chunks)
-    
+
     def _download(self, url: str) -> Tuple[str, str]:
         """Download content from the given URL, determine its type, and extract the title and text."""
         response = requests.get(url)
-        response.raise_for_status() 
+        response.raise_for_status()
 
-        content_type = response.headers['Content-Type']
+        content_type = response.headers["Content-Type"]
 
-        if 'text/html' in content_type:
+        if "text/html" in content_type:
             return self._parse_html(response.content)
-        elif 'application/pdf' in content_type:
+        elif "application/pdf" in content_type:
             return self._parse_pdf(response.content)
         else:
-            raise Exception('Unsupported content type')
-
+            raise Exception("Unsupported content type")
 
     def _parse_html(self, content: bytes) -> Tuple[str, str]:
         """Extract the title and text content from HTML data."""
-        soup = BeautifulSoup(content, 'html.parser')
-        title = soup.find('title').text if soup.find('title') else ''
+        soup = BeautifulSoup(content, "html.parser")
+        title = soup.find("title").text if soup.find("title") else ""
         text = self._clean_text(soup.get_text())
         return title, text
 
-
     def _parse_pdf(self, content: bytes) -> Tuple[str, str]:
         """Extract the title and text content from a PDF file."""
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.txt') as temp_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as temp_file:
             temp_file.write(content)
             temp_file_path = temp_file.name
 
         doc = fitz.open(temp_file_path)
-        text = ' '.join([page.get_text() for page in doc])
+        text = " ".join([page.get_text() for page in doc])
 
         text = self._clean_text(text)
 
         # Extract title from metadata or the first block of text
-        title = doc.metadata.get('title', self._extract_first_block_text(doc[0]))
+        title = doc.metadata.get("title", self._extract_first_block_text(doc[0]))
 
         os.remove(temp_file_path)
         return title, text
 
-
     def _clean_text(self, text: str) -> str:
-        text = text.replace('-\n', '')
-        return text 
-
+        text = text.replace("-\n", "")
+        return text
 
     def _extract_first_block_text(self, page) -> str:
         blocks = page.get_text("blocks")
-        return blocks[0][4].strip() if blocks else 'unknown'    
-    
+        return blocks[0][4].strip() if blocks else "unknown"

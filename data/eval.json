@@ -1487,43 +1487,43 @@
       "id": "q379",
       "query": "How can the pursuit of a single goal lead to the development of multiple abilities associated with intelligence?",
       "answer": "In such environments, any behaviour that maximises reward must necessarily exhibit those abilities. In this sense, the generic objective of reward maximisation contains within it many or possibly even all the goals of intelligence.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q380",
       "query": "What are the two levels of explanation for diverse forms of intelligence found in nature?",
       "answer": "Reward thus provides two levels of explanation for the bountiful expressions of intelligence found in nature. First, different forms of intelligence may arise from the maximisation of different reward signals in different environments, resulting for example in abilities as distinct as echolocation in bats, communication by whale-song, or tool use in chimpanzees. Second, the intelligence of even a single animal or human is associated with a cornucopia of abilities. According to our hypothesis, all of these abilities subserve a singular goal of maximising that animal or agent's reward within its environment.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q381",
       "query": "How might a kitchen robot develop various abilities through the pursuit of a single goal?",
       "answer": "In order for a kitchen robot to maximise cleanliness, it must presumably have abilities of perception (to differentiate clean and dirty utensils), knowledge (to understand utensils), motor control (to manipulate utensils), memory (to recall locations of utensils), language (to predict future mess from dialogue), and social intelligence (to encourage young children to make less mess). A behaviour that maximises cleanliness must therefore yield all these abilities in service of that singular goal",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q384",
       "query": "How does the reinforcement learning problem represent goals?",
       "answer": "The reinforcement learning problem represents goals by cumulative rewards. A reward is a special scalar observation R t , emitted at every time-step t by a reward signal in the environment, that provides an instantaneous measurement of progress towards a goal. An instance of the reinforcement learning problem is defined by an environment \u03b5 with a reward signal, and by a cumulative objective to maximise, such as a sum of rewards over a finite number of steps, a discounted sum, or the average reward per time-step.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q385",
       "query": "What are the limitations of the agent system in the reinforcement learning problem?",
       "answer": "The agent system \u03b1 is limited by practical constraints to a bounded set. The agent has limited capacity determined by its machinery (for example, limited memory in a computer or limited neurons in a brain). The agent and environment systems execute in real-time. While the agent spends time computing its next action (e.g. producing no-op actions while deciding whether to run away from a lion), the environment system continues to process (e.g. the lion attacks).",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q386",
       "query": "How does the definition of environment in reinforcement learning encompass various problem dimensions?",
       "answer": "Note that this definition of environment is very broad and encompasses many problem dimensions, including those in Table 1.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q390",
       "query": "How does the reward maximization approach to social intelligence differ from traditional game theory approaches?",
       "answer": "According to our hypothesis, social intelligence may instead be understood as, and implemented by, maximising cumulative reward from the point of view of one agent in an environment that contains other agents. Following this standard agent-environment protocol, one agent observes the behaviour of other agents, and may affect other agents through its actions, just as it observes and affects any other aspect of its environment. An agent that can anticipate and influence the behaviour of other agents can typically achieve greater cumulative reward. Thus, if an environment needs social intelligence (e.g. because it contains animals or humans), reward maximisation will produce social intelligence.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q399",
@@ -1681,13 +1681,13 @@
       "id": "q398",
       "query": "How does the concept of bounded rationality relate to the reward-is-enough hypothesis?",
       "answer": "Bounded or computational rationality suggests that agents should select the program that best achieves their goals, given the real-time consequences arising from that program (for example, how long the program takes to execute), and subject to limitations on the set of programs (for example, limiting the maximum size of the program). Our contribution builds upon these viewpoints, but focuses on the question of whether a single, simple reward-based goal could provide a common basis for all abilities associated with intelligence.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q392",
       "query": "How does the reward maximization approach address the challenge of integrating different linguistic abilities?",
       "answer": "According to our hypothesis, the ability of language in its full richness, including all of these broader abilities, arises from the pursuit of reward. It is an instance of an agent's ability to produce complex sequences of actions (e.g. uttering sentences) based on complex sequences of observations (e.g. receiving sentences) in order to influence other agents in the environment (cf. discussion of social intelligence above) and accumulate greater reward.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q181",
@@ -1699,13 +1699,13 @@
       "id": "q397",
       "query": "How does the reward-is-enough hypothesis address the challenge of sample efficiency in learning complex behaviors?",
       "answer": "We do not offer any theoretical guarantee on the sample efficiency of reinforcement learning agents. Indeed, the rate at and degree to which abilities emerge will depend upon the specific environment, learning algorithm, and inductive biases; furthermore one may construct artificial environments in which learning will fail. Instead, we conjecture that powerful reinforcement learning agents, when placed in complex environments, will in practice give rise to sophisticated expressions of intelligence.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q387",
       "query": "Why might an environment demand learned knowledge in reinforcement learning?",
       "answer": "An environment may also demand learned knowledge. This will occur when future experience is uncertain, due to unknown elements, stochasticity, or complexity of the environment. This uncertainty results in a vast array of potential knowledge that the agent may need, depending on its particular realisation of future events. In rich environments, including many of the hardest and most important problems in natural and artificial intelligence, the total space of potential knowledge is far larger than the capacity of the agent.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q330",
@@ -1753,7 +1753,7 @@
       "id": "q394",
       "query": "How does the reward maximization approach address the challenge of observational learning in complex environments?",
       "answer": "We speculate that these broader abilities of observation learning could be driven by the maximisation of reward, from the perspective of a single agent that simply observes other agents as integral parts of its environment, potentially leading to many of the same benefits as behavioural cloning \u2013 such as the sample-efficient acquisition of knowledge \u2013 but in a much wider and more integrated context.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q246",
@@ -1843,13 +1843,13 @@
       "id": "q382",
       "query": "What advantages does a singular goal provide in understanding various abilities associated with intelligence?",
       "answer": "When abilities associated with intelligence arise as solutions to a singular goal of reward maximisation, this may in fact provide a deeper understanding since it explains why such an ability arises (e.g. that classification of crocodiles is important to avoid being eaten). In contrast, when each ability is understood as the solution to its own specialised goal, the why question is side-stepped in order to focus upon what that ability does (e.g. discriminating crocodiles from logs). Furthermore, a singular goal may also provide a broader understanding of each ability that may include characteristics that are otherwise hard to formalise, such as dealing with irrational agents in social intelligence (e.g. pacifying an angry aggressor), grounding language to perceptual experience (e.g. dialogue regarding the best way to peel a fruit), or understanding haptics in perception (e.g. picking a sharp object from a pocket). Finally, implementing abilities in service of a singular goal, rather than for their own specialised goals, also answers the question of how to integrate abilities, which otherwise remains an outstanding issue.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q388",
       "query": "How does the reward maximization approach to perception differ from traditional supervised learning approaches?",
       "answer": "As per our hypothesis, we suggest that perception may instead be understood as subserving the maximisation of reward. For example, the perceptual abilities listed above may arise implicitly in service of maximising healthy food, avoiding accidents, or minimising pain. Indeed, perception in some animals has been shown to be consistent with reward maximisation. Considering perception from the perspective of reward maximisation rather than supervised learning may ultimately support a greater range of perceptual behaviours, including challenging and realistic forms of perceptual abilities",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q212",
@@ -1915,7 +1915,7 @@
       "id": "q396",
       "query": "What are the advantages of using reinforcement learning agents for maximizing reward?",
       "answer": "First, among all possible solution methods for maximising reward, surely the most natural approach is to learn to do so from experience, by interacting with the environment. Over time, that interactive experience provides a wealth of information about cause and effect, about the consequences of actions, and about how to accumulate reward. Rather than predetermining the agent's behaviour (placing faith in the designer's foreknowledge of the environment) it is natural instead to bestow the agent with a general ability to discover its own behaviours (placing faith in experience).",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q087",
@@ -2005,7 +2005,7 @@
       "id": "q389",
       "query": "What are some challenges in applying traditional supervised learning approaches to perception in complex environments?",
       "answer": "The distribution of data is typically context-dependent. For example, an Arctic agent may be required to classify ice and polar bears, upon which its rewards depend; while an African agent may need to classify savannah and lions. The diversity of potential data may, in rich environments, vastly exceed the agent's capacity or the quantity of pre-existing data (see Section 3.1) \u2013 requiring that perception is learned from experience.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q401",
@@ -2023,7 +2023,7 @@
       "id": "q395",
       "query": "How does the reward-is-enough hypothesis propose to address the challenge of general intelligence?",
       "answer": "According to our hypothesis, general intelligence can instead be understood as, and implemented by, maximising a singular reward in a single, complex environment. For example, natural intelligence faces a contiguous stream of experience throughout its lifetime, generated from interactions with the natural world. An animal's stream of experience is sufficiently rich and varied that it may demand a flexible ability to achieve a vast variety of subgoals (such as foraging, fighting, or fleeing), in order to succeed in maximising its overall reward (such as hunger or reproduction). Similarly, if an artificial agent's stream of experience is sufficiently rich, then singular goals (such as battery-life or survival) may implicitly require the ability to achieve an equally wide variety of subgoals, and the maximisation of reward should therefore be enough to yield an artificial general intelligence.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q354",
@@ -2137,7 +2137,7 @@
       "id": "q393",
       "query": "How does the reward-based approach to generalization differ from traditional transfer learning approaches?",
       "answer": "As per our hypothesis, generalisation may instead be understood as, and implemented by, maximising cumulative reward in a continuing stream of interaction between an agent and a single complex environment \u2013 again following a standard agent-environment protocol (see Section 2.1). Environments such as the human world demand generalisation simply because the agent encounters different aspects of the environment at different times. For example, a fruit-eating animal may encounter a new tree every day; furthermore it may become injured, suffer a drought, or face an invasive species. In each case, the animal must adapt quickly to its new state, by generalising its experience from past states.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q097",
@@ -2185,7 +2185,7 @@
       "id": "q391",
       "query": "What advantages does reward maximization have over equilibrium-based approaches in multi-agent scenarios?",
       "answer": "Reward maximisation may in fact lead to a better solution than an equilibrium. This is because it may capitalise upon suboptimal behaviours of other agents, rather than assuming optimal or worst-case behaviour. Furthermore, reward maximisation has a unique optimal value, while the equilibrium value is non-unique in general-sum games.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q351",
@@ -2233,7 +2233,7 @@
       "id": "q383",
       "query": "What is the most general and scalable approach to maximizing reward in artificial intelligence?",
       "answer": "Among possible methods for maximising reward, the most general and scalable approach is to learn to do so, by interacting with the environment by trial and error. We conjecture that an agent that can effectively learn to maximise reward in this manner would, when placed in a rich environment, give rise to sophisticated expressions of general intelligence.",
-      "document_url": "https://www.sciencedirect.com/science/article/pii/S0004370221000862"
+      "document_url": "https://sites.rutgers.edu/critical-ai/wp-content/uploads/sites/586/2022/01/Silver_Reward-is-Enough.pdf"
     },
     {
       "id": "q357",
