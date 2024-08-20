@@ -50,8 +50,8 @@ class Mindex:
         name: str,
         model_id: str = "mixedbread-ai/mxbai-embed-large-v1",
         EMBEDDING_DIM: int = 512,
-        CHUNK_SIZE: int = 200,
-        CHUNK_OVERLAP: int = 100,
+        CHUNK_SIZE: int = 600,
+        CHUNK_OVERLAP: int = 360,
         QUERY_PREFIX = "",
     ) -> None:
         self.NAME = name
@@ -175,7 +175,7 @@ class Mindex:
             top_k_documents, chunk_scores
         )  # m <= k
 
-        return top_m_documents, document_scores, top_k_chunks, chunk_scores
+        return top_m_documents, document_scores, top_k_documents,  top_k_chunks, chunk_scores
 
     def _aggregate_and_sort(
         self, documents: Array, scores: Array

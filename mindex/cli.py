@@ -37,9 +37,29 @@ def search(query: str, name: str, top_k: int):
     mindex = get_mindex(name)
     results = mindex.search(query, top_k)
     
-    for doc_id, score in zip(results[0], results[1]):
-        document = mindex.documents[doc_id]
-        click.echo(f"Score: {score:.4f}, Title: {document[0]}, URL: {document[1]}")
+    top_m_documents, _, top_k_documents, top_k_chunks, _ = mindex.search("positional out of distribution", top_k=5)
+
+    document_chunks = {}
+
+    for doc_idx, chunk_idx in zip(top_k_documents, top_k_chunks):
+        if doc_idx not in document_chunks:
+            document_chunks[doc_idx] = []
+        document_chunks[doc_idx].append(chunk_idx)
+
+    for doc_idx in top_m_documents:
+        chunks_idx = document_chunks[doc_idx]
+        doc = mindex.documents[doc_idx]
+        chunks = [mindex.chunks[i] for i in chunks_idx]
+
+        click.echo(f"Title: {doc[0]}")
+        click.echo(f"URL: {doc[1]}")
+        click.echo("Top chunks:")
+        for c in chunks:
+            click.echo(f"- {c}")
+            click.echo("")
+        click.echo()
+        click.echo("-------------------") 
+        click.echo()
     
 
 @cli.command()
