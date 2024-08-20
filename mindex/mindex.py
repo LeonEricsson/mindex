@@ -123,8 +123,6 @@ class Mindex:
         self.storage.index(new_chunks)
         self.chunks.extend(new_chunks)
 
-        self.save(f"{self.NAME}.pkl")
-
     def remove(self, url: str):
         """Remove a document from the index by URL."""
         index = next((i for i, doc in enumerate(self.documents) if doc[1] == url), None)
@@ -139,8 +137,6 @@ class Mindex:
             self.chunk_index[index + 1 :] -= c_e - c_s
 
             self.storage.remove(c_s, c_e)
-
-            self.save(f"{self.NAME}.pkl")
         else:
             print(f"Document with URL {url} not found in the index.")
 
