@@ -1,8 +1,6 @@
 # mindex
 a local semantic search engine of your mind index.
 
-[video]
-
 ### motivation
 i read a lot. papers, blog posts, twitter threads, you name it. a recurring problem i face is recalling information i know i've read somewhere but struggling to find it. to solve this, i built **mindex**. a local semantic search engine for your mind index (where "mind index" refers to things i (you) have read).
 
