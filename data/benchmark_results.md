@@ -32,6 +32,14 @@ Validation set
 | Chunk Size 600 / Overlap 300 | 60.53% | 0.6074 |
 | Chunk Size 500 / Overlap 300 | 57.14% | 0.5797 |
 | Chunk Size 600 / Overlap 360 | 62.41% | 0.6216 |
+**Stella**
+| Chunk Size 600 / Overlap 240 | 61.65% | 
+| Chunk Size 500 / Overlap 200 | 60.90% | 
+| Chunk Size 600 / Overlap 360 | 60.53% | 
+| Chunk Size 500 / Overlap 250 | 59.77% | 
+| Chunk Size 600 / Overlap 300 | 58.27% | 
+| Chunk Size 500 / Overlap 300 | 55.26% | 
+
 Test set
 
 | Model | Accuracy | Mean n-gram overlap |
