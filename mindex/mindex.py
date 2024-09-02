@@ -61,10 +61,11 @@ class Mindex:
         self.model_id = model_id
 
         self.storage = VectorStorage(
-            embedder=SentenceTransformer(model_id, truncate_dim=EMBEDDING_DIM),
+            embedder=SentenceTransformer(model_id, trust_remote_code=True),#truncate_dim=EMBEDDING_DIM),
             similarity=SimilarityMetric.COSINE,
             query_prefix=QUERY_PREFIX,
             save_embedder=True,
+            embedding_dim=EMBEDDING_DIM
         )
 
         self.documents: List[Tuple[str, str]] = []

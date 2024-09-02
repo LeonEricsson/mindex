@@ -97,7 +97,7 @@ class Evaluator:
 
         for query, answer in tqdm(dataset, desc="Processing"):
             search_start = time.time()
-            _, _, chunk_idxs, _ = mindex.search(query, top_k=5)
+            _, _, _, chunk_idxs, _ = mindex.search(query, top_k=5)
             search_end = time.time()
             search_times.append(search_end - search_start)
 

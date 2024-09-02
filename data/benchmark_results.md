@@ -4,6 +4,7 @@ Validation set
 
 | Model | Accuracy | Mean n-gram overlap |
 |-------|----------|---------------------|
+**MixedBread**
 | Baseline | 46.24% | 0.5093 |
 | **20% overlap** |
 | Chunk Size 100 / Overlap 20 | 33.08% | 0.3881 |
@@ -32,6 +33,14 @@ Validation set
 | Chunk Size 600 / Overlap 300 | 60.53% | 0.6074 |
 | Chunk Size 500 / Overlap 300 | 57.14% | 0.5797 |
 | Chunk Size 600 / Overlap 360 | 62.41% | 0.6216 |
+**GTE**
+| Chunk Size 600 / Overlap 360 | 63.16% |
+| Chunk Size 600 / Overlap 300 | 60.90% |
+| Chunk Size 500 / Overlap 250 | 59.40% |
+| Chunk Size 500 / Overlap 300 | 57.52% |
+| Chunk Size 600 / Overlap 240 | 57.14% |
+| Chunk Size 500 / Overlap 200 | 56.02% |
+
 Test set
 
 | Model | Accuracy | Mean n-gram overlap |

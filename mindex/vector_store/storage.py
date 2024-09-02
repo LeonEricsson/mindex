@@ -27,7 +27,7 @@ class VectorStorage:
     VectorStorage indexes documents using their vector representations and 
     provides fast similarity search functionality.
     """
-    def __init__(self, embedder, similarity = SimilarityMetric.COSINE, query_prefix = "", save_embedder = False):
+    def __init__(self, embedder, embedding_dim, similarity = SimilarityMetric.COSINE, query_prefix = "", save_embedder = False):
         """
         Initialize the VectorStorage.
 
@@ -40,7 +40,7 @@ class VectorStorage:
         self._embedder = embedder
         self._similarity_fn = sims[similarity.value]
         self._query_prefix = query_prefix
-        self._index = np.zeros((0, embedder.truncate_dim))
+        self._index = np.zeros((0, embedding_dim))
         self._save_embedder = save_embedder
 
 
