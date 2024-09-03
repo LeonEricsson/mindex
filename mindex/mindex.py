@@ -159,72 +159,64 @@ class Mindex:
             mindex = pickle.load(f)
         return mindex
 
-    def search(self, query: str, top_k: int) -> Tuple[Array, Array, Array, Array]:
+    def search(self, query: str, top_k: int, method: str = 'hybrid') -> Tuple[Array, Array, Array, Array, Array]:
         """
-        Search the embedding database for the most relevant documents to the query.
+        Main search function that calls the appropriate search method and processes results.
 
         Args:
             query (str): The search query.
             top_k (int): The number of top results to return.
+            method (str): The search method to use. Options are 'bm25', 'embedding', or 'hybrid'.
 
         Returns:
-            Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Top documents, doc scores, top chunks, chunk scores.
+            Tuple[Array, Array, Array, Array, Array]: Top documents, doc scores, top document indices, top chunks, chunk scores.
         """
         assert top_k > 0 and top_k <= len(self.chunks)
+        assert method in ['bm25', 'embedding', 'hybrid'], "Invalid search method"
 
-        top_k_chunks, chunk_scores = self.storage.search_top_k([query], top_k)
-        top_k_chunks = top_k_chunks.squeeze()
-        chunk_scores = chunk_scores.squeeze()
+        if method == 'bm25':
+            top_k_chunks, chunk_scores = self._bm25_search(query, top_k)
+        elif method == 'embedding':
+            top_k_chunks, chunk_scores = self._embedding_search(query, top_k)
+        elif method == 'hybrid':
+            top_k_chunks, chunk_scores = self._hybrid_search(query, top_k)
 
-        # connect chunks to documents
+        # Process results
         top_k_documents = (
             np.searchsorted(self.chunk_index, top_k_chunks, side="right") - 1
         )
         top_m_documents, document_scores = self._aggregate_and_sort(
             top_k_documents, chunk_scores
-        )  # m <= k
+        )
 
-        return top_m_documents, document_scores, top_k_documents,  top_k_chunks, chunk_scores
-    
-    def bm25_search(self, query: str, top_k: int, top_l: int) -> Tuple[Array, Array, Array, Array]:
-        """
-        Search the embedding database for the most relevant documents to the query.
+        return top_m_documents, document_scores, top_k_documents, top_k_chunks, chunk_scores
 
-        Args:
-            query (str): The search query.
-            top_k (int): The number of top results to return.
+    def _embedding_search(self, query: str, top_k: int) -> Tuple[Array, Array]:
+        top_k_chunks, chunk_scores = self.storage.search_top_k([query], top_k)
+        return top_k_chunks.squeeze(), chunk_scores.squeeze()
 
-        Returns:
-            Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Top documents, doc scores, top chunks, chunk scores.
-        """
-        assert top_k > 0 and top_k <= len(self.chunks)
-
+    def _bm25_search(self, query: str, top_k: int) -> Tuple[Array, Array]:
         scores = self.bm25.get_scores(query)
-
         top_k_chunks = np.argpartition(-scores, top_k)[:top_k]
-        chunk_scores = scores[top_k_chunks]
+        return top_k_chunks, scores[top_k_chunks]
 
-        # TODO: experimenting with the sequenctial approach of BM25 -> embedding search. But I need to index all the documents
-        # to be able to do this so I need to do this on the work computer.
+    def _hybrid_search(self, query: str, top_k: int) -> Tuple[Array, Array]:
+        bm25_scores = self.bm25.get_scores(query)
 
+        top_l = top_k * 10
+        top_l_chunks = np.argpartition(-bm25_scores, top_l)[:top_l]
+        
         query_embeddings = self.storage._embedder.encode([query])
-        chunk_embeddings = self.storage._index[top_k_chunks]
+        chunk_embeddings = self.storage._index[top_l_chunks]
 
         chunk_scores = cosine_similarity(query_embeddings, chunk_embeddings).squeeze()
 
-        top_l_chunks = np.argsort(-chunk_scores)[:top_l]
-        top_l_chunks = top_k_chunks[top_l_chunks]
+        top_k_indices = np.argsort(-chunk_scores)[:top_k]
+        top_k_chunks = top_l_chunks[top_k_indices]
+        chunk_scores = chunk_scores[top_k_indices]
 
+        return top_k_chunks, chunk_scores
 
-        # connect chunks to documents
-        top_k_documents = (
-            np.searchsorted(self.chunk_index, top_k_chunks, side="right") - 1
-        )
-        top_m_documents, document_scores = self._aggregate_and_sort(
-            top_k_documents, chunk_scores
-        )
-
-        return top_m_documents, document_scores, top_k_documents, top_l_chunks, chunk_scores
 
     def _aggregate_and_sort(
         self, documents: Array, scores: Array
