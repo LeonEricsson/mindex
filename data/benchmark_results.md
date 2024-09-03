@@ -40,12 +40,13 @@ Validation set
 | Chunk Size 500 / Overlap 300 | 57.52% |
 | Chunk Size 600 / Overlap 240 | 57.14% |
 | Chunk Size 500 / Overlap 200 | 56.02% |
+BM25
+| Top-k = 5 | 60.03% |
+| Top-k = 30 | 76.46% |
+
 
 Test set
 
 | Model | Accuracy | Mean n-gram overlap |
 |-------|----------|---------------------|
 | Baseline | 0.46 % | 0.4706 |
-
-**Baseline**
-The baseline. 
