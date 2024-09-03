@@ -83,7 +83,7 @@ class Evaluator:
             'is_answer_found': is_answer_found
         }
     
-    def evaluate_mindex(self, mindex, validation_set = True, debug=False):
+    def evaluate_mindex(self, mindex, validation_set = True, debug=False, top_k=5):
         import time
         from tqdm import tqdm
 
@@ -97,7 +97,7 @@ class Evaluator:
 
         for query, answer in tqdm(dataset, desc="Processing"):
             search_start = time.time()
-            _, _, _, chunk_idxs, _ = mindex.search(query, top_k=5)
+            _, _, _, chunk_idxs, _ = mindex.bm25_search(query, top_k=top_k)
             search_end = time.time()
             search_times.append(search_end - search_start)
 

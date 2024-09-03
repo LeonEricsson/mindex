@@ -4,15 +4,20 @@ import requests
 import tempfile
 from requests.exceptions import HTTPError
 from typing import Union, Tuple, List
+from .bm25 import BM25
+from .vector_store import VectorStorage, SimilarityMetric
 
 import numpy as np
 import fitz  # PyMuPDF
 from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
-from .vector_store import VectorStorage, SimilarityMetric
 
 Array = np.ndarray
 
+def cosine_similarity(x, y):
+    x_norm = x / np.linalg.norm(x, axis=1, keepdims=True)
+    y_norm = y / np.linalg.norm(y, axis=1, keepdims=True)
+    return x_norm @ y_norm.T
 
 class Mindex:
     """A class for indexing and searching document content from various sources.
@@ -72,6 +77,8 @@ class Mindex:
         self.chunks: List[str] = []
         self.chunk_index: List[int] = [0]
         self.chunk_index: Array = np.zeros(1, dtype=np.int16)
+        self.bm25 = BM25()
+
 
     def add(
         self,
@@ -121,8 +128,9 @@ class Mindex:
             return
 
         self.chunk_index = np.concatenate([self.chunk_index, new_chunk_idxs])
-        self.storage.index(new_chunks)
+        #self.storage.index(new_chunks)
         self.chunks.extend(new_chunks)
+        self.bm25.fit(self.chunks)
 
     def remove(self, url: str):
         """Remove a document from the index by URL."""
@@ -177,6 +185,46 @@ class Mindex:
         )  # m <= k
 
         return top_m_documents, document_scores, top_k_documents,  top_k_chunks, chunk_scores
+    
+    def bm25_search(self, query: str, top_k: int, top_l: int) -> Tuple[Array, Array, Array, Array]:
+        """
+        Search the embedding database for the most relevant documents to the query.
+
+        Args:
+            query (str): The search query.
+            top_k (int): The number of top results to return.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Top documents, doc scores, top chunks, chunk scores.
+        """
+        assert top_k > 0 and top_k <= len(self.chunks)
+
+        scores = self.bm25.get_scores(query)
+
+        top_k_chunks = np.argpartition(-scores, top_k)[:top_k]
+        chunk_scores = scores[top_k_chunks]
+
+        # TODO: experimenting with the sequenctial approach of BM25 -> embedding search. But I need to index all the documents
+        # to be able to do this so I need to do this on the work computer.
+
+        query_embeddings = self.storage._embedder.encode([query])
+        chunk_embeddings = self.storage._index[top_k_chunks]
+
+        chunk_scores = cosine_similarity(query_embeddings, chunk_embeddings).squeeze()
+
+        top_l_chunks = np.argsort(-chunk_scores)[:top_l]
+        top_l_chunks = top_k_chunks[top_l_chunks]
+
+
+        # connect chunks to documents
+        top_k_documents = (
+            np.searchsorted(self.chunk_index, top_k_chunks, side="right") - 1
+        )
+        top_m_documents, document_scores = self._aggregate_and_sort(
+            top_k_documents, chunk_scores
+        )
+
+        return top_m_documents, document_scores, top_k_documents, top_l_chunks, chunk_scores
 
     def _aggregate_and_sort(
         self, documents: Array, scores: Array
