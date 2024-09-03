@@ -80,12 +80,11 @@ class TestMindex(unittest.TestCase):
 
         mindex = Mindex("test_index", EMBEDDING_DIM=512, CHUNK_SIZE=200)
 
-        top_docs, doc_scores, top_chunks, chunk_scores = mindex.search("test query", 3)
+        top_docs, top_chunks, chunk_scores = mindex.search("test query", 3)
 
         mock_search.assert_called_once_with("test query", 3)
 
         np.testing.assert_array_equal(top_docs, [0, 1, 2])
-        np.testing.assert_array_almost_equal(doc_scores, [0.9, 0.8, 0.7])
         np.testing.assert_array_equal(top_chunks, [0, 2, 4])
         np.testing.assert_array_almost_equal(chunk_scores, [0.9, 0.8, 0.7])
 

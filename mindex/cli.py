@@ -35,10 +35,8 @@ def cli():
 def search(query: str, name: str, top_k: int):
     """Perform a search query."""
     mindex = get_mindex(name)
-    results = mindex.search(query, top_k)
+    top_m_documents, top_k_documents, top_k_chunks, _ = mindex.search(query, top_k)
     
-    top_m_documents, _, top_k_documents, top_k_chunks, _ = mindex.search("positional out of distribution", top_k=5)
-
     document_chunks = {}
 
     for doc_idx, chunk_idx in zip(top_k_documents, top_k_chunks):

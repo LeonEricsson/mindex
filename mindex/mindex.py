@@ -166,7 +166,7 @@ class Mindex:
         Args:
             query (str): The search query.
             top_k (int): The number of top results to return.
-            method (str): The search method to use. Options are 'bm25', 'embedding', or 'hybrid'.
+            method (str): The search method to use. Defaults to 'hybrid'. Options are 'bm25', 'embedding', or 'hybrid'. 
 
         Returns:
             Tuple[Array, Array, Array, Array, Array]: Top documents, doc scores, top document indices, top chunks, chunk scores.
@@ -181,24 +181,27 @@ class Mindex:
         elif method == 'hybrid':
             top_k_chunks, chunk_scores = self._hybrid_search(query, top_k)
 
-        # Process results
+        # Match chunk to document, and score them.
         top_k_documents = (
             np.searchsorted(self.chunk_index, top_k_chunks, side="right") - 1
         )
-        top_m_documents, document_scores = self._aggregate_and_sort(
+        top_m_documents, _ = self._aggregate_and_sort(
             top_k_documents, chunk_scores
         )
 
-        return top_m_documents, document_scores, top_k_documents, top_k_chunks, chunk_scores
+        return top_m_documents, top_k_documents, top_k_chunks, chunk_scores
+
 
     def _embedding_search(self, query: str, top_k: int) -> Tuple[Array, Array]:
         top_k_chunks, chunk_scores = self.storage.search_top_k([query], top_k)
         return top_k_chunks.squeeze(), chunk_scores.squeeze()
 
+
     def _bm25_search(self, query: str, top_k: int) -> Tuple[Array, Array]:
         scores = self.bm25.get_scores(query)
         top_k_chunks = np.argpartition(-scores, top_k)[:top_k]
         return top_k_chunks, scores[top_k_chunks]
+
 
     def _hybrid_search(self, query: str, top_k: int) -> Tuple[Array, Array]:
         bm25_scores = self.bm25.get_scores(query)
