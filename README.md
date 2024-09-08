@@ -6,7 +6,12 @@ i read a lot. papers, blog posts, twitter threads, you name it. a recurring prob
 
 this project also gave me a good excuse to gain experience with embedded search. i made the most of this opportunity to learn what works and what doesn't, going to the extent of creating a synthetic benchmark dataset and performing quantitative evaluations of chunking strategies, embedding strategies, and more.
 
-_mindex is not a rag system. instead, it provides the exact passage(s) that 'best' match your query. while i have little interest in attaching an llm to the end of the pipeline, everything is extendable, so go ahead and build!_
+_mindex is not a rag system. instead, it provides documents and passages which best match your query. while i have little interest in attaching an llm to the end of the pipeline, everything is extendable, so go ahead and build!_
+
+### features
+
+- hybrid search: okapi bm25 + mixedbread-embed-large
+- colbert re-ranker using answerai-colbert-small
 
 ### usage
 
