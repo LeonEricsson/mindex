@@ -214,7 +214,10 @@ class Mindex:
         return top_k_chunks, scores[top_k_chunks]
 
 
-    def _hybrid_search(self, query: str, top_k: int) -> Tuple[Array, Array]:
+    def _hybrid_search_seq(self, query: str, top_k: int) -> Tuple[Array, Array]:
+        """
+        Hybrid search using BM25 and Embeddings sequentially.
+        """
         bm25_scores = self.bm25.get_scores(query)
         
         top_l = top_k * 10
@@ -230,6 +233,79 @@ class Mindex:
         chunk_scores = chunk_scores[top_k_indices]
 
         return top_k_chunks, chunk_scores
+    
+    def _hybrid_search_rrf(self, query: str, top_k: int) -> Tuple[Array, Array]:
+        """
+        Hybrid search using reciprocal rank fusion.
+        """
+        top_l = top_k * 1
+
+        bm25_scores = self.bm25.get_scores(query)
+        bm25_top_l = np.argpartition(-bm25_scores, top_l)[:top_l]
+        
+        embedding_top_l, _ = self.storage.search_top_k([query], top_l)
+        embedding_top_l = embedding_top_l.squeeze()
+        
+        # Combine results using Reciprocal Rank Fusion
+        k = 60  # constant for RRF, can be tuned
+        all_indices = np.unique(np.concatenate([bm25_top_l, embedding_top_l]))
+        
+        rrf_scores = np.zeros(len(all_indices))
+        for i, idx in enumerate(all_indices):
+            bm25_rank = np.where(bm25_top_l == idx)[0]
+            emb_rank = np.where(embedding_top_l == idx)[0]
+            
+            bm25_score = 1 / (k + bm25_rank[0] + 1) if len(bm25_rank) > 0 else 0
+            emb_score = 1 / (k + emb_rank[0] + 1) if len(emb_rank) > 0 else 0
+            
+            rrf_scores[i] = bm25_score + emb_score
+        
+        # Get top-k results based on RRF scores
+        top_k_indices = np.argsort(-rrf_scores)[:top_k]
+        top_k_chunks = all_indices[top_k_indices]
+        final_scores = rrf_scores[top_k_indices]
+        
+        return top_k_chunks, final_scores
+    
+    def _hybrid_search(self, query: str, top_k: int, alpha: float = 0.5) -> Tuple[Array, Array]:
+        """
+        Hybrid search combining BM25 and embedding scores.
+        """
+        top_l = top_k * 10
+        
+        bm25_scores = self.bm25.get_scores(query)
+        bm25_top_l = np.argpartition(-bm25_scores, top_l)[:top_l]
+        bm25_top_scores = bm25_scores[bm25_top_l]
+        
+        embedding_top_l, embedding_scores = self.storage.search_top_k([query], top_l)
+        embedding_top_l = embedding_top_l.squeeze()
+        embedding_scores = embedding_scores.squeeze()
+        
+        all_indices = np.unique(np.concatenate([bm25_top_l, embedding_top_l]))
+        
+        bm25_scores_norm = np.zeros(len(all_indices))
+        emb_scores_norm = np.zeros(len(all_indices))
+        
+        bm25_min, bm25_max = np.min(bm25_top_scores), np.max(bm25_top_scores)
+        bm25_range = bm25_max - bm25_min
+        
+        emb_min, emb_max = np.min(embedding_scores), np.max(embedding_scores)
+        emb_range = emb_max - emb_min
+        
+        for i, idx in enumerate(all_indices):
+            if bm25_range != 0:
+                bm25_scores_norm[i] = (bm25_scores[idx] - bm25_min) / bm25_range
+            if idx in embedding_top_l and emb_range != 0:
+                emb_index = np.where(embedding_top_l == idx)[0][0]
+                emb_scores_norm[i] = (embedding_scores[emb_index] - emb_min) / emb_range
+        
+        combined_scores = alpha * bm25_scores_norm + (1 - alpha) * emb_scores_norm
+        
+        final_top_k = np.argsort(-combined_scores)[:top_k]
+        final_scores = combined_scores[final_top_k]
+        final_indices = all_indices[final_top_k]
+        
+        return final_indices, final_scores
 
 
     def _aggregate_and_sort(
