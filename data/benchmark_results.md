@@ -52,9 +52,14 @@ Validation set
 **BM25**
 | Top-k = 5 | 60.03% |
 | Top-k = 30 | 76.46% |
-**Hybrid Search (BM -> MixedBread sequentially)**
+**Hybrid Search Sequential**
 | Top-k = 5 | 65.79% |
-
+**Hybrid Search RRF**
+| Top-k = 5 | 67.67% |
+| Top-k = 5, Top-l = 50 | 61.65% |
+**Hybrid Search Linear Combination**
+| Top-k = 5 | 64.29% |
+| Top-k = 5, Top-l = 100 | 70.68% |
 
 Test set
 

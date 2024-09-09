@@ -161,7 +161,7 @@ class Mindex:
             mindex = pickle.load(f)
         return mindex
 
-    def search(self, query: str, top_k: int, method: str = 'hybrid', rerank: bool = True) -> Tuple[Array, Array, Array, Array, Array]:
+    def search(self, query: str, top_k: int, top_l: int = 1, method: str = 'hybrid', rerank: bool = True) -> Tuple[Array, Array, Array, Array, Array]:
         """
         Search the knowledge base for relevant chunks and their corresponding source documents.
 
@@ -184,7 +184,7 @@ class Mindex:
         elif method == 'embedding':
             top_k_chunks, chunk_scores = self._embedding_search(query, top_k)
         elif method == 'hybrid':
-            top_k_chunks, chunk_scores = self._hybrid_search(query, top_k)
+            top_k_chunks, chunk_scores = self._hybrid_search(query, top_k, top_l)
 
         if rerank:
             chunks = [self.chunks[i] for i in top_k_chunks]
@@ -267,11 +267,10 @@ class Mindex:
         
         return top_k_chunks, final_scores
     
-    def _hybrid_search(self, query: str, top_k: int, alpha: float = 0.5) -> Tuple[Array, Array]:
+    def _hybrid_search(self, query: str, top_k: int, top_l: int, alpha: float = 0.5) -> Tuple[Array, Array]:
         """
         Hybrid search combining BM25 and embedding scores.
-        """
-        top_l = top_k * 10
+        """        
         
         bm25_scores = self.bm25.get_scores(query)
         bm25_top_l = np.argpartition(-bm25_scores, top_l)[:top_l]
