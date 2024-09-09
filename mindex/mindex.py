@@ -11,6 +11,7 @@ import numpy as np
 import fitz  # PyMuPDF
 from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
+from rerankers import Reranker
 
 Array = np.ndarray
 
@@ -54,6 +55,7 @@ class Mindex:
         self,
         name: str,
         model_id: str = "mixedbread-ai/mxbai-embed-large-v1",
+        reranker_id: str = "answerdotai/answerai-colbert-small-v1",
         EMBEDDING_DIM: int = 512,
         CHUNK_SIZE: int = 600,
         CHUNK_OVERLAP: int = 360,
@@ -62,22 +64,22 @@ class Mindex:
         self.NAME = name
         self.CHUNK_SIZE = CHUNK_SIZE
         self.CHUNK_OVERLAP = CHUNK_OVERLAP
-        self.EMBEDDING_DIM = EMBEDDING_DIM
         self.model_id = model_id
 
         self.storage = VectorStorage(
-            embedder=SentenceTransformer(model_id, trust_remote_code=True),#truncate_dim=EMBEDDING_DIM),
+            embedder=SentenceTransformer(model_id, trust_remote_code=True, truncate_dim=EMBEDDING_DIM),
             similarity=SimilarityMetric.COSINE,
             query_prefix=QUERY_PREFIX,
             save_embedder=True,
             embedding_dim=EMBEDDING_DIM
         )
+        self.reranker = Reranker(reranker_id)
+        self.bm25 = BM25()
 
         self.documents: List[Tuple[str, str]] = []
         self.chunks: List[str] = []
         self.chunk_index: List[int] = [0]
         self.chunk_index: Array = np.zeros(1, dtype=np.int16)
-        self.bm25 = BM25()
 
 
     def add(
@@ -128,7 +130,7 @@ class Mindex:
             return
 
         self.chunk_index = np.concatenate([self.chunk_index, new_chunk_idxs])
-        #self.storage.index(new_chunks)
+        self.storage.index(new_chunks)
         self.chunks.extend(new_chunks)
         self.bm25.fit(self.chunks)
 
@@ -159,14 +161,17 @@ class Mindex:
             mindex = pickle.load(f)
         return mindex
 
-    def search(self, query: str, top_k: int, method: str = 'hybrid') -> Tuple[Array, Array, Array, Array, Array]:
+    def search(self, query: str, top_k: int, method: str = 'hybrid', rerank: bool = True) -> Tuple[Array, Array, Array, Array, Array]:
         """
-        Main search function that calls the appropriate search method and processes results.
+        Search the knowledge base for relevant chunks and their corresponding source documents.
 
         Args:
             query (str): The search query.
             top_k (int): The number of top results to return.
-            method (str): The search method to use. Defaults to 'hybrid'. Options are 'bm25', 'embedding', or 'hybrid'. 
+            method (str): The search method to use. Defaults to 'hybrid'. 
+                bm25: Okapi BM25
+                embedding: Embeddings with cosine similarity
+                hybrid': -
 
         Returns:
             Tuple[Array, Array, Array, Array, Array]: Top documents, doc scores, top document indices, top chunks, chunk scores.
@@ -180,6 +185,12 @@ class Mindex:
             top_k_chunks, chunk_scores = self._embedding_search(query, top_k)
         elif method == 'hybrid':
             top_k_chunks, chunk_scores = self._hybrid_search(query, top_k)
+
+        if rerank:
+            chunks = [self.chunks[i] for i in top_k_chunks]
+            ranked_result = self.reranker.rank(query=query, docs=chunks)
+            top_k_chunks = [top_k_chunks[r.doc_id] for r in ranked_result.top_k(top_k)]
+            chunk_scores = [chunk_scores[r.doc_id] for r in ranked_result.top_k(top_k)]
 
         # Match chunk to document, and score them.
         top_k_documents = (
@@ -205,10 +216,10 @@ class Mindex:
 
     def _hybrid_search(self, query: str, top_k: int) -> Tuple[Array, Array]:
         bm25_scores = self.bm25.get_scores(query)
-
+        
         top_l = top_k * 10
         top_l_chunks = np.argpartition(-bm25_scores, top_l)[:top_l]
-        
+
         query_embeddings = self.storage._embedder.encode([query])
         chunk_embeddings = self.storage._index[top_l_chunks]
 

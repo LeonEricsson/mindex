@@ -83,9 +83,11 @@ class Evaluator:
             'is_answer_found': is_answer_found
         }
     
-    def evaluate_mindex(self, mindex, validation_set = True, debug=False, top_k=5):
+    def evaluate_mindex(self, mindex, search_config, validation_set = True, debug=False):
         import time
         from tqdm import tqdm
+
+        assert all(key in search_config for key in ['top_k', 'method', 'rerank'])        
 
         num_samples = 0
         num_correct = 0
@@ -97,7 +99,7 @@ class Evaluator:
 
         for query, answer in tqdm(dataset, desc="Processing"):
             search_start = time.time()
-            _, _, chunk_idxs, _ = mindex.bm25_search(query, top_k=top_k)
+            _, _, chunk_idxs, _ = mindex.search(query, **search_config)
             search_end = time.time()
             search_times.append(search_end - search_start)
 

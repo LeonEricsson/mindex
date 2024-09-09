@@ -33,16 +33,27 @@ Validation set
 | Chunk Size 600 / Overlap 300 | 60.53% | 0.6074 |
 | Chunk Size 500 / Overlap 300 | 57.14% | 0.5797 |
 | Chunk Size 600 / Overlap 360 | 62.41% | 0.6216 |
-**GTE**
+**Stella**
+| Chunk Size 600 / Overlap 240 | 61.65% | 
+| Chunk Size 500 / Overlap 200 | 60.90% | 
+| Chunk Size 600 / Overlap 360 | 60.53% | 
+| Chunk Size 500 / Overlap 250 | 59.77% | 
+| Chunk Size 600 / Overlap 300 | 58.27% | 
+| Chunk Size 500 / Overlap 300 | 55.26% |
+**GTE (Embedding dimension 1024)**
 | Chunk Size 600 / Overlap 360 | 63.16% |
 | Chunk Size 600 / Overlap 300 | 60.90% |
 | Chunk Size 500 / Overlap 250 | 59.40% |
 | Chunk Size 500 / Overlap 300 | 57.52% |
 | Chunk Size 600 / Overlap 240 | 57.14% |
 | Chunk Size 500 / Overlap 200 | 56.02% |
-BM25
+**MixedBread (Embedding dimension 1024)**
+| Chunk Size 600 / Overlap 360 | **64.29%** |
+**BM25**
 | Top-k = 5 | 60.03% |
 | Top-k = 30 | 76.46% |
+**Hybrid Search (BM -> MixedBread sequentially)**
+| Top-k = 5 | 65.79% |
 
 
 Test set
