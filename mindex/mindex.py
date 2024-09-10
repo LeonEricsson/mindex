@@ -180,11 +180,11 @@ class Mindex:
         assert method in ['bm25', 'embedding', 'hybrid'], "Invalid search method"
 
         if method == 'bm25':
-            top_k_chunks, chunk_scores = self._bm25_search(query, top_k)
+            top_k_chunks, chunk_scores = self._bm25_search(query, top_l)
         elif method == 'embedding':
-            top_k_chunks, chunk_scores = self._embedding_search(query, top_k)
+            top_k_chunks, chunk_scores = self._embedding_search(query, top_l)
         elif method == 'hybrid':
-            top_k_chunks, chunk_scores = self._hybrid_search(query, top_k, top_l)
+            top_k_chunks, chunk_scores = self._hybrid_search(query, top_l)
 
         if rerank:
             chunks = [self.chunks[i] for i in top_k_chunks]
@@ -238,7 +238,7 @@ class Mindex:
         """
         Hybrid search using reciprocal rank fusion.
         """
-        top_l = top_k * 1
+        top_l = top_k
 
         bm25_scores = self.bm25.get_scores(query)
         bm25_top_l = np.argpartition(-bm25_scores, top_l)[:top_l]
@@ -267,11 +267,13 @@ class Mindex:
         
         return top_k_chunks, final_scores
     
-    def _hybrid_search(self, query: str, top_k: int, top_l: int, alpha: float = 0.5) -> Tuple[Array, Array]:
+    def _hybrid_search(self, query: str, top_k: int, alpha: float = 0.5) -> Tuple[Array, Array]:
         """
         Hybrid search combining BM25 and embedding scores.
         """        
         
+        top_l = top_k
+
         bm25_scores = self.bm25.get_scores(query)
         bm25_top_l = np.argpartition(-bm25_scores, top_l)[:top_l]
         bm25_top_scores = bm25_scores[bm25_top_l]
