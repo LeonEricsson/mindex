@@ -1,3 +1,5 @@
+*WIP. currently iterating on improvements for search. performance has improved from 49% -> 71% on the internal [benchmark](#benchmark) and evaluations are ongoing. see the [benchmark results table](/data/benchmark_results.md) for latest evals*
+
 # mindex
 a local semantic search engine of your mind index.
 
