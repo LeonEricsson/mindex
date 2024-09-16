@@ -1,5 +1,3 @@
-*WIP. currently iterating on improvements for search. performance has improved from 49% -> 71% on the internal [benchmark](#benchmark) and evaluations are ongoing. see the [benchmark results table](/data/benchmark_results.md) for latest evals*
-
 # mindex
 a local semantic search engine of your mind index.
 
@@ -12,8 +10,19 @@ _mindex is not a rag system. instead, it provides documents and passages which b
 
 ### features
 
-- hybrid search: okapi bm25 + mixedbread-embed-large
-- colbert re-ranker using answerai-colbert-small
+- multiple search strategies:
+  - okapi bm25 for lexical matching
+  - dense retrieval using mixedbread-embed-large
+  - hybrid search options:
+    - sequential: bm25 followed by embedding search
+    - reciprocal rank fusion (rrf): combines rankings from both methods
+    - linear combination (lc): merges normalized scores
+- colbert re-ranking using answerai-colbert-small
+- support for html and pdf documents with automatic parsing
+- optimized chunking strategy (600 words, 60% overlap)
+- efficient vector storage and retrieval
+- cli and python api for easy integration
+- benchmark dataset for continuous evaluation and improvement
 
 ### usage
 
@@ -85,14 +94,16 @@ the main challenges involved steering claude away from generating queries that r
 the final dataset comprises over 400 samples, split into validation and test sets, covering various ML topics. this benchmark dataset provides a foundation for thorough evaluation and targeted improvements of mindex's performance.
 
 ### evaluation
-_improvements to mindex are ongoing. this section will be updated with new results._
+_i've concluded the evaluation work. ultimately we managed to improve the top-5 accuracy from 49% to 72%._
 
 mindex is evaluated on it's [benchmark dataset](#benchmark) using two complementary metrics:
 
 1. **top-k accuracy**: measures if any of the retrieved chunks contains the answer, using a 0.7 threshold. a score of 1 indicates successful retrieval, 0 otherwise.
 2. **mean n-gram overlap score**: calculates the average of the best chunk's n-gram overlap score per retrieval, providing more nuanced results.
 
-a **baseline** implementation was evaluated at 46.24% accuracy with a 0.5093 mean n-gram overlap.
+the complete benchmark table is available [here](/data/benchmark_results.md).
+
+**baseline** implementation was evaluated at 46.24% accuracy with a 0.5093 mean n-gram overlap.
 
 **chunking & cleaning.** we conducted a grid search across chunk sizes 100-800 words, and overlap percentages 20-80%. the search favors larger chunks (not a surprise), which perform better, with optimal overlap ranging from 40% to 60%. the best performer used 800-word chunks with 40% overlap, achieving 63.91% accuracy and a 0.6279 mean overlap score.
 
