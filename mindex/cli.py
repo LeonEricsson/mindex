@@ -33,31 +33,48 @@ def cli():
 @click.option('--name', default='default', help='Name of the Mindex instance to use.')
 @click.option('--top-k', default=5, help='Number of top results to return.')
 def search(query: str, name: str, top_k: int):
-    """Perform a search query."""
+    """Perform an interactive search query."""
     mindex = get_mindex(name)
-    top_m_documents, top_k_documents, top_k_chunks, _ = mindex.search(query, top_k, method='hybrid', top_l=20)
+    top_m_documents, _, top_k_chunks, _ = mindex.search(query, top_k, method='hybrid', top_l=20)
     
     document_chunks = {}
-
-    for doc_idx, chunk_idx in zip(top_k_documents, top_k_chunks):
+    for doc_idx, chunk_idx in zip(top_m_documents, top_k_chunks):
         if doc_idx not in document_chunks:
             document_chunks[doc_idx] = []
         document_chunks[doc_idx].append(chunk_idx)
 
-    for doc_idx in top_m_documents:
-        chunks_idx = document_chunks[doc_idx]
-        doc = mindex.documents[doc_idx]
-        chunks = [mindex.chunks[i] for i in chunks_idx]
-
-        click.echo(f"Title: {doc[0]}")
-        click.echo(f"URL: {doc[1]}")
-        click.echo("Top chunks:")
-        for c in chunks:
-            click.echo(f"- {c}")
-            click.echo("")
-        click.echo()
-        click.echo("-------------------") 
-        click.echo()
+    while True:
+        click.echo("\nTop documents:")
+        for i, doc_idx in enumerate(top_m_documents, 1):
+            doc = mindex.documents[doc_idx]
+            click.echo(f"{i}. {doc[0]} - {doc[1]}")
+        
+        click.echo("\nEnter the number of the document to view chunks, or 'q' to quit:")
+        choice = click.prompt("Your choice", type=str)
+        
+        if choice.lower() == 'q':
+            break
+        
+        try:
+            doc_index = int(choice) - 1
+            if 0 <= doc_index < len(top_m_documents):
+                doc_idx = top_m_documents[doc_index]
+                doc = mindex.documents[doc_idx]
+                chunks = [mindex.chunks[i] for i in document_chunks[doc_idx]]
+                
+                click.echo(f"\nTitle: {doc[0]}")
+                click.echo(f"URL: {doc[1]}")
+                click.echo("Top chunks:")
+                for c in chunks:
+                    click.echo(f"- {c}")
+                    click.echo("")
+                
+                click.echo("Press Enter to return to the document list...")
+                click.prompt("", prompt_suffix="", default="", show_default=False)
+            else:
+                click.echo("Invalid selection. Please try again.")
+        except ValueError:
+            click.echo("Invalid input. Please enter a number or 'q'.")
     
 
 @cli.command()

@@ -21,7 +21,8 @@ dependencies = [
     "PyMuPDF",
     "beautifulsoup4",
     "click>=8.0.0",
-    "appdirs>=1.4.4"
+    "appdirs>=1.4.4",
+    "rerankers"
 ]
 
 [project.optional-dependencies]
