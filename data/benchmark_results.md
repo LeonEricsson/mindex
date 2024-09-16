@@ -56,10 +56,20 @@ Validation set
 | Top-k = 5 | 65.79% |
 **Hybrid Search RRF**
 | Top-k = 5 | 67.67% |
+| Top-k = 20 | 79.70% |
 | Top-k = 5, Top-l = 50 | 61.65% |
 **Hybrid Search Linear Combination**
 | Top-k = 5 | 64.29% |
+| Top-k = 20 | 80.83% |
 | Top-k = 5, Top-l = 100 | 70.68% |
+**BM25 + Re-ranker**
+| Top-k = 5, Top-l = 40 | 72.5% |
+**Hybrid RRF + Re-ranker**
+| Top-k = 5, Top-l = 20 | 72.5% |
+**Hybrid LC + Re-ranker**
+| Top-k = 5, Top-l = 20 | 72.18% |
+
+
 
 Test set
 

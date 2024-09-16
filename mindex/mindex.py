@@ -184,8 +184,8 @@ class Mindex:
         elif method == 'embedding':
             top_k_chunks, chunk_scores = self._embedding_search(query, top_l)
         elif method == 'hybrid':
-            top_k_chunks, chunk_scores = self._hybrid_search(query, top_l)
-
+            top_k_chunks, chunk_scores = self._hybrid_search_score(query, top_k)
+        
         if rerank:
             chunks = [self.chunks[i] for i in top_k_chunks]
             ranked_result = self.reranker.rank(query=query, docs=chunks)
@@ -267,9 +267,9 @@ class Mindex:
         
         return top_k_chunks, final_scores
     
-    def _hybrid_search(self, query: str, top_k: int, alpha: float = 0.5) -> Tuple[Array, Array]:
+    def _hybrid_search_score(self, query: str, top_k: int, alpha: float = 0.5) -> Tuple[Array, Array]:
         """
-        Hybrid search combining BM25 and embedding scores.
+        Hybrid search with a linear combination of the normalized scores from BM25 and embedding search.
         """        
         
         top_l = top_k

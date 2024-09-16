@@ -82,6 +82,27 @@ class Evaluator:
             'best_chunk_index': best_chunk_index,
             'is_answer_found': is_answer_found
         }
+        
+    def evaluate_mindex_by_id(self, mindex, search_config,  id, debug=False):   
+        item = self.get_validation_item_by_id(id)
+        query = item['query']
+        answer = item['answer']
+        
+        _, _, chunk_idxs, _ = mindex.search(query, **search_config)
+
+        chunks = [mindex.chunks[i] for i in chunk_idxs]
+
+        result = self.evaluate_retrieval(answer, chunks)
+            
+
+        if debug:
+            print(f"Query: {query}")
+            print(f"Answer: {answer}")
+            print(result['is_answer_found'], result['max_score'], chunks[result['best_chunk_index']])
+            print("------")
+            print("")
+
+        return result, chunk_idxs
     
     def evaluate_mindex(self, mindex, search_config, validation_set = True, debug=False, output_score=True):
         import time
