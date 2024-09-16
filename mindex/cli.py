@@ -35,7 +35,7 @@ def cli():
 def search(query: str, name: str, top_k: int):
     """Perform a search query."""
     mindex = get_mindex(name)
-    top_m_documents, top_k_documents, top_k_chunks, _ = mindex.search(query, top_k)
+    top_m_documents, top_k_documents, top_k_chunks, _ = mindex.search(query, top_k, method='hybrid', top_l=20)
     
     document_chunks = {}
 
